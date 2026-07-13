@@ -961,17 +961,115 @@ footer p {
     grid-template-columns: 1fr;
   }
 
-  .result-line {
-    grid-template-columns: 1fr;
+  .tool-page {
+    padding: 14px;
+  }
+
+  .tool-page-shell {
+    margin-top: 32px;
+  }
+
+  .tool-card--full {
+    padding: 16px;
+  }
+
+  .result-panel--success {
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .result-report-header {
+    gap: 10px;
+    padding-bottom: 12px;
+  }
+
+  .result-report-header strong {
+    font-size: 22px;
+  }
+
+  .result-badge {
+    min-height: 30px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+
+  .result-report-type {
+    white-space: normal;
+    line-height: 1.35;
+  }
+
+  .result-lines {
     gap: 4px;
   }
 
+  .result-line {
+    grid-template-columns: 1fr;
+    gap: 4px;
+    padding: 8px 0;
+  }
+
+  .result-line p,
+  .result-conclusion {
+    font-size: 14px;
+  }
+
+  .result-conclusion {
+    padding: 12px;
+  }
+
+  .phone-breakdown {
+    gap: 10px;
+  }
+
   .phone-breakdown-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    align-items: stretch;
+  }
+
+  .phone-breakdown-heading span {
+    font-size: 21px;
+  }
+
+  .phone-breakdown-heading p {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .phone-breakdown-item {
+    min-height: 100px;
+    gap: 4px;
+    padding: 9px 8px;
+    border-radius: 12px;
+  }
+
+  .phone-breakdown-item span {
+    font-size: 11px;
+    line-height: 1.25;
+  }
+
+  .phone-breakdown-item strong {
+    font-size: 15px;
+    line-height: 1.25;
+    word-break: keep-all;
+  }
+
+  .phone-breakdown-item small {
+    font-size: 11px;
+    line-height: 1.35;
   }
 
   .phone-breakdown-empty {
-    display: none;
+    min-height: 100px;
+  }
+
+  .bagua-symbol {
+    position: static;
+    transform: none;
+    justify-self: end;
+    align-self: end;
+    font-size: 24px;
+    line-height: 0.9;
   }
 }
 
