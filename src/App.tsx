@@ -1,4 +1,4 @@
-import { FormEvent, useMemo, useState } from "react";
+import { CSSProperties, FormEvent, useMemo, useState } from "react";
 import { getBirthdayReading, getPhoneReading, ReadingResult } from "./calculators";
 import { countryCodes, offerings, processSteps, services } from "./content";
 
@@ -295,6 +295,58 @@ function SiteNav({ current }: { current?: "home" | "phone" | "birthday" | "clien
   );
 }
 
+function PageHeading({
+  current,
+  eyebrow,
+  title,
+  description,
+  activeTab
+}: {
+  current: "phone" | "birthday" | "client";
+  eyebrow: string;
+  title: string;
+  description: string;
+  activeTab: string;
+}) {
+  return (
+    <header className="tool-page-header">
+      <SiteNav current={current} />
+      <div className="tool-title-row">
+        <span className="eyebrow">{eyebrow}</span>
+        <h1>{title}</h1>
+        <p>{description}</p>
+      </div>
+      <div className="soft-tabs" aria-label={`${title}功能分区`}>
+        {[activeTab, "能量解读", "改善建议"].map((tab, index) => (
+          <span className={index === 0 ? "is-active" : ""} key={tab}>
+            {tab}
+          </span>
+        ))}
+      </div>
+    </header>
+  );
+}
+
+function CompassPlate({ tone = "light" }: { tone?: "light" | "dark" }) {
+  const directions = ["午", "未", "申", "酉", "戌", "亥", "子", "丑", "寅", "卯", "辰", "巳"];
+
+  return (
+    <div className={`compass-plate compass-plate--${tone}`} aria-hidden="true">
+      <div className="compass-outer">
+        {directions.map((item, index) => (
+          <span style={{ "--turn": `${index * 30}deg` } as CSSProperties} key={item}>
+            {item}
+          </span>
+        ))}
+        <div className="compass-inner">
+          <strong>坎</strong>
+          <small>186° 南</small>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function PhoneToolPage() {
   const [countryCode, setCountryCode] = useState(countryCodes[0].value);
   const [phone, setPhone] = useState("");
@@ -309,13 +361,30 @@ function PhoneToolPage() {
 
   return (
     <main className="tool-page">
-      <SiteNav current="phone" />
-
+      <PageHeading
+        current="phone"
+        eyebrow="01 · 号码罗盘"
+        title="手机号码测算"
+        description="输入正在使用或考虑选择的号码，系统会整理成完整的梅花易数号码结果。"
+        activeTab="综合盘"
+      />
       <section className="tool-page-shell">
-        <div className="tool-page-intro">
-          <span className="tool-index">01</span>
-          <h1>手机号码测算</h1>
-          <p>输入正在使用或考虑选择的号码，系统会整理成完整的梅花易数号码结果。</p>
+        <div className="tool-side-panel">
+          <CompassPlate />
+          <div className="mini-stat-grid" aria-label="号码测算摘要">
+            <span>
+              方位
+              <strong>南</strong>
+            </span>
+            <span>
+              八卦
+              <strong>离</strong>
+            </span>
+            <span>
+              九星
+              <strong>九紫</strong>
+            </span>
+          </div>
         </div>
 
         <article className="tool-card tool-card--full">
@@ -360,19 +429,34 @@ function BirthdayToolPage() {
 
   function submitBirthday(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const result = getBirthdayReading(birthday);
+    const formData = new FormData(event.currentTarget);
+    const submittedBirthday = String(formData.get("birthday") ?? birthday);
+    const result = getBirthdayReading(submittedBirthday);
+    setBirthday(submittedBirthday);
     setBirthdayResult(result);
   }
 
   return (
     <main className="tool-page">
-      <SiteNav current="birthday" />
-
+      <PageHeading
+        current="birthday"
+        eyebrow="02 · 八字分析"
+        title="生日命理分析"
+        description="选择出生日期，系统会生成生命灵数金字塔、辅助三角与流年核心的完整结果。"
+        activeTab="宅命分析"
+      />
       <section className="tool-page-shell">
-        <div className="tool-page-intro">
-          <span className="tool-index">02</span>
-          <h1>生日命理分析</h1>
-          <p>选择出生日期，系统会生成生命灵数金字塔、辅助三角与流年核心的完整结果。</p>
+        <div className="tool-side-panel">
+          <div className="score-panel">
+            <span>整体评分</span>
+            <strong>85分</strong>
+            <p>吉宅气场良好，布局合理，宜继续保持。</p>
+          </div>
+          <div className="direction-grid" aria-label="方位吉凶参考">
+            {["正北 伏位 吉", "东北 五鬼 凶", "正东 天医 吉", "正南 生气 吉", "西南 祸害 凶", "西北 延年 吉"].map((item) => (
+              <span key={item}>{item}</span>
+            ))}
+          </div>
         </div>
 
         <article className="tool-card tool-card--full">
@@ -380,6 +464,7 @@ function BirthdayToolPage() {
             <label htmlFor="birthday">出生日期</label>
             <input
               id="birthday"
+              name="birthday"
               type="date"
               value={birthday}
               onChange={(event) => setBirthday(event.target.value)}
@@ -397,6 +482,7 @@ function BirthdayToolPage() {
 
 function HomePage() {
   const year = useMemo(() => new Date().getFullYear(), []);
+  const dateTiles = ["嫁娶", "开市", "交易", "求财", "祈福", "出行", "入宅", "安床"];
 
   return (
     <main>
@@ -405,6 +491,7 @@ function HomePage() {
 
         <div className="hero-grid">
           <div className="hero-copy">
+            <span className="eyebrow">东方命理 · 数字能量 · 生活风水</span>
             <h1>
               从号码与生日，
               <span>看见生活里的气场流向</span>
@@ -422,17 +509,12 @@ function HomePage() {
             </div>
           </div>
 
-          <div className="energy-oracle" aria-label="五行能量视觉">
-            <div className="oracle-ring">
-              <span>木</span>
-              <span>火</span>
-              <span>土</span>
-              <span>金</span>
-              <span>水</span>
-            </div>
-            <div className="oracle-center">
-              <strong>福</strong>
-              <small>Balance</small>
+          <div className="reference-stage" aria-label="风水应用视觉参考">
+            <img src="/assets/reference-home-calendar.png" alt="黄历择日与风水分析界面参考" />
+            <div className="floating-result">
+              <span>今日宜忌</span>
+              <strong>宜</strong>
+              <p>祈福、求财、出行、纳财</p>
             </div>
           </div>
         </div>
@@ -453,6 +535,28 @@ function HomePage() {
               <p>{service.description}</p>
             </article>
           ))}
+        </div>
+      </section>
+
+      <section className="section compass-section" aria-label="风水罗盘体验">
+        <div className="dark-oracle">
+          <CompassPlate tone="dark" />
+          <div className="oracle-caption">
+            <span>坐北朝南 · 正向</span>
+            <strong>当前方位：186° 南</strong>
+          </div>
+        </div>
+        <div className="calendar-card">
+          <span className="eyebrow">黄历择日</span>
+          <h2>把吉日、方位与数字放在同一个判断里</h2>
+          <div className="date-grid">
+            {dateTiles.map((tile, index) => (
+              <span className={index < 4 ? "is-good" : ""} key={tile}>
+                {tile}
+              </span>
+            ))}
+          </div>
+          <p>参考吉日页面的紧凑信息结构，让用户快速扫描适合做什么、避免什么，以及下一步该看哪一项报告。</p>
         </div>
       </section>
 
@@ -502,6 +606,12 @@ function HomePage() {
             </div>
           ))}
         </div>
+      </section>
+
+      <section className="section reference-gallery" aria-label="视觉风格参考">
+        <img src="/assets/reference-fengshui-panels.png" alt="空间风水、五行能量分析和吉物推荐界面参考" />
+        <img src="/assets/reference-luopan-calendar.png" alt="风水罗盘、八宅分析和择日吉日界面参考" />
+        <img src="/assets/reference-hexagram-oracle.png" alt="六爻占卦与卦象界面参考" />
       </section>
 
       <section className="section process-section">
