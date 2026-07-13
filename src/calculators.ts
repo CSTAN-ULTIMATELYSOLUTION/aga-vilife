@@ -4,6 +4,8 @@ export type ReadingResult = {
   message: string;
   normalizedInput?: string;
   breakdown?: CalculationBreakdownItem[];
+  yearlyAnalysis?: TimeAnalysisItem[];
+  monthlyAnalysis?: TimeAnalysisItem[];
 };
 
 export type CalculationBreakdownItem = {
@@ -12,6 +14,16 @@ export type CalculationBreakdownItem = {
   detail: string;
   symbol: string;
 };
+
+export type TimeAnalysisItem = {
+  label: string;
+  ganzhi: string;
+  element: string;
+  tone: string;
+  summary: string;
+};
+
+type ElementName = "木" | "火" | "土" | "金" | "水";
 
 type Trigram = {
   name: string;
@@ -65,6 +77,50 @@ const trigramSymbols: Record<number, string> = {
   6: "☵",
   7: "☶",
   8: "☷"
+};
+
+const heavenlyStems = [
+  { name: "甲", element: "木" },
+  { name: "乙", element: "木" },
+  { name: "丙", element: "火" },
+  { name: "丁", element: "火" },
+  { name: "戊", element: "土" },
+  { name: "己", element: "土" },
+  { name: "庚", element: "金" },
+  { name: "辛", element: "金" },
+  { name: "壬", element: "水" },
+  { name: "癸", element: "水" }
+] as const;
+
+const earthlyBranches = [
+  { name: "子", element: "水" },
+  { name: "丑", element: "土" },
+  { name: "寅", element: "木" },
+  { name: "卯", element: "木" },
+  { name: "辰", element: "土" },
+  { name: "巳", element: "火" },
+  { name: "午", element: "火" },
+  { name: "未", element: "土" },
+  { name: "申", element: "金" },
+  { name: "酉", element: "金" },
+  { name: "戌", element: "土" },
+  { name: "亥", element: "水" }
+] as const;
+
+const generatingCycle: Record<ElementName, ElementName> = {
+  木: "火",
+  火: "土",
+  土: "金",
+  金: "水",
+  水: "木"
+};
+
+const controllingCycle: Record<ElementName, ElementName> = {
+  木: "土",
+  土: "水",
+  水: "火",
+  火: "金",
+  金: "木"
 };
 
 const sixRelations: Record<number, SixRelation> = {
@@ -179,6 +235,129 @@ function formatPhoneBreakdown(phone: string): CalculationBreakdownItem[] {
     formatTrigramBreakdown("6. 变卦上卦", result.changed.upper),
     formatTrigramBreakdown("7. 变卦下卦", result.changed.lower)
   ];
+}
+
+function normalizeElement(element: string) {
+  return element as ElementName;
+}
+
+function describeElementEffect(bodyElement: ElementName, timeElements: ElementName[]) {
+  let score = 0;
+  const notes = timeElements.map((element) => {
+    if (element === bodyElement) {
+      score += 1;
+      return `${element}同气`;
+    }
+
+    if (generatingCycle[element] === bodyElement) {
+      score += 2;
+      return `${element}生${bodyElement}`;
+    }
+
+    if (generatingCycle[bodyElement] === element) {
+      score -= 1;
+      return `${bodyElement}生${element}`;
+    }
+
+    if (controllingCycle[element] === bodyElement) {
+      score -= 2;
+      return `${element}克${bodyElement}`;
+    }
+
+    if (controllingCycle[bodyElement] === element) {
+      score += 0.5;
+      return `${bodyElement}制${element}`;
+    }
+
+    return `${element}平`;
+  });
+
+  const tone = score >= 3 ? "旺" : score >= 1.5 ? "吉" : score >= 0 ? "平" : score >= -1.5 ? "耗" : "压";
+  const advice =
+    tone === "旺"
+      ? "能量明显生扶，适合推进、扩张与做重要决定。"
+      : tone === "吉"
+        ? "整体有助力，适合稳步推进并把握机会。"
+        : tone === "平"
+          ? "吉凶平衡，适合先整理节奏，再选择重点行动。"
+          : tone === "耗"
+            ? "会有消耗感，适合保守规划、减少分散投入。"
+            : "压力偏强，适合谨慎决策、先稳住现金流与关系。";
+
+  return {
+    tone,
+    summary: `${notes.join("，")}；${advice}`
+  };
+}
+
+function formatTimeAnalysisItem(label: string, stemIndex: number, branchIndex: number, bodyElement: ElementName): TimeAnalysisItem {
+  const stem = heavenlyStems[((stemIndex % 10) + 10) % 10];
+  const branch = earthlyBranches[((branchIndex % 12) + 12) % 12];
+  const effect = describeElementEffect(bodyElement, [normalizeElement(stem.element), normalizeElement(branch.element)]);
+
+  return {
+    label,
+    ganzhi: `${stem.name}${branch.name}`,
+    element: `${stem.element}/${branch.element}`,
+    tone: effect.tone,
+    summary: effect.summary
+  };
+}
+
+function getYearStemBranchIndexes(year: number) {
+  const offset = year - 1984;
+
+  return {
+    stemIndex: ((offset % 10) + 10) % 10,
+    branchIndex: ((offset % 12) + 12) % 12
+  };
+}
+
+function getFirstMonthStemIndex(yearStemIndex: number) {
+  if (yearStemIndex === 0 || yearStemIndex === 5) return 2;
+  if (yearStemIndex === 1 || yearStemIndex === 6) return 4;
+  if (yearStemIndex === 2 || yearStemIndex === 7) return 6;
+  if (yearStemIndex === 3 || yearStemIndex === 8) return 8;
+  return 0;
+}
+
+function formatYearlyAnalysis(phone: string): TimeAnalysisItem[] {
+  const result = calculateBagua(phone);
+  const bodyTrigram = result.bodyUse.first === "体" ? result.original.upper : result.original.lower;
+  const bodyElement = normalizeElement(trigrams[bodyTrigram].elementName);
+
+  return Array.from({ length: 12 }, (_, index) => {
+    const year = 2026 + index;
+    const { stemIndex, branchIndex } = getYearStemBranchIndexes(year);
+
+    return formatTimeAnalysisItem(`${year}`, stemIndex, branchIndex, bodyElement);
+  });
+}
+
+function formatMonthlyAnalysis(phone: string): TimeAnalysisItem[] {
+  const result = calculateBagua(phone);
+  const bodyTrigram = result.bodyUse.first === "体" ? result.original.upper : result.original.lower;
+  const bodyElement = normalizeElement(trigrams[bodyTrigram].elementName);
+  const previousYear = getYearStemBranchIndexes(2025);
+  const currentYear = getYearStemBranchIndexes(2026);
+  const previousFirstMonthStem = getFirstMonthStemIndex(previousYear.stemIndex);
+  const currentFirstMonthStem = getFirstMonthStemIndex(currentYear.stemIndex);
+  const months = [
+    { label: "1月", stemIndex: previousFirstMonthStem + 11, branchIndex: 1 },
+    { label: "2月", stemIndex: currentFirstMonthStem, branchIndex: 2 },
+    { label: "3月", stemIndex: currentFirstMonthStem + 1, branchIndex: 3 },
+    { label: "4月", stemIndex: currentFirstMonthStem + 2, branchIndex: 4 },
+    { label: "5月", stemIndex: currentFirstMonthStem + 3, branchIndex: 5 },
+    { label: "6月", stemIndex: currentFirstMonthStem + 4, branchIndex: 6 },
+    { label: "7月", stemIndex: currentFirstMonthStem + 5, branchIndex: 7 },
+    { label: "8月", stemIndex: currentFirstMonthStem + 6, branchIndex: 8 },
+    { label: "9月", stemIndex: currentFirstMonthStem + 7, branchIndex: 9 },
+    { label: "10月", stemIndex: currentFirstMonthStem + 8, branchIndex: 10 },
+    { label: "11月", stemIndex: currentFirstMonthStem + 9, branchIndex: 11 },
+    { label: "12月", stemIndex: currentFirstMonthStem + 10, branchIndex: 0 }
+  ];
+
+  return months.map((month) => formatTimeAnalysisItem(month.label, month.stemIndex, month.branchIndex, bodyElement));
 }
 
 function formatBaguaReading(phone: string) {
@@ -314,7 +493,9 @@ export function getPhoneReading(countryCode: string, phoneNumber: string): Readi
     title: "号码完整结果",
     normalizedInput,
     message: formatBaguaReading(formulaPhone),
-    breakdown: formatPhoneBreakdown(formulaPhone)
+    breakdown: formatPhoneBreakdown(formulaPhone),
+    yearlyAnalysis: formatYearlyAnalysis(formulaPhone),
+    monthlyAnalysis: formatMonthlyAnalysis(formulaPhone)
   };
 }
 

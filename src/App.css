@@ -581,6 +581,128 @@ select:focus {
   min-height: 104px;
 }
 
+.time-analysis {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(82, 111, 92, 0.18);
+}
+
+.time-analysis-heading span {
+  color: var(--ink);
+  font-family: "Noto Serif SC", serif;
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.time-analysis-heading p {
+  margin: 6px 0 0;
+  color: rgba(31, 46, 39, 0.62);
+  line-height: 1.65;
+}
+
+.year-analysis-grid,
+.month-analysis-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.year-analysis-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.month-analysis-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.time-card {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-height: 176px;
+  padding: 16px;
+  border: 1px solid rgba(82, 111, 92, 0.16);
+  border-radius: 14px;
+  background: rgba(255, 253, 248, 0.62);
+  overflow: hidden;
+}
+
+.time-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-top: 4px solid rgba(82, 111, 92, 0.22);
+  pointer-events: none;
+}
+
+.time-card div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.time-card span {
+  color: rgba(31, 46, 39, 0.58);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.time-card strong {
+  color: var(--ink);
+  font-family: "Noto Serif SC", serif;
+  font-size: 24px;
+}
+
+.time-card small {
+  width: fit-content;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(82, 111, 92, 0.1);
+  color: var(--gold);
+  font-weight: 800;
+}
+
+.time-card p {
+  margin: 0;
+  color: rgba(31, 46, 39, 0.72);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.time-card em {
+  position: absolute;
+  right: 14px;
+  bottom: 10px;
+  color: rgba(31, 46, 39, 0.12);
+  font-family: "Noto Serif SC", serif;
+  font-size: 42px;
+  font-style: normal;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.time-card--compact {
+  min-height: 158px;
+  padding: 14px;
+}
+
+.time-card--旺::before,
+.time-card--吉::before {
+  border-color: rgba(82, 111, 92, 0.58);
+}
+
+.time-card--平::before {
+  border-color: rgba(183, 138, 69, 0.58);
+}
+
+.time-card--耗::before,
+.time-card--压::before {
+  border-color: rgba(158, 74, 54, 0.54);
+}
+
 .paid-report {
   margin-top: 14px;
   padding-top: 14px;
@@ -956,6 +1078,13 @@ footer p {
   }
 }
 
+@media (max-width: 760px) {
+  .year-analysis-grid,
+  .month-analysis-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 420px) {
   .phone-input-row {
     grid-template-columns: 1fr;
@@ -1070,6 +1199,48 @@ footer p {
     align-self: end;
     font-size: 24px;
     line-height: 0.9;
+  }
+
+  .time-analysis {
+    gap: 10px;
+    margin-top: 14px;
+    padding-top: 14px;
+  }
+
+  .time-analysis-heading span {
+    font-size: 21px;
+  }
+
+  .time-analysis-heading p {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .year-analysis-grid,
+  .month-analysis-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .time-card,
+  .time-card--compact {
+    min-height: auto;
+    gap: 8px;
+    padding: 13px;
+  }
+
+  .time-card strong {
+    font-size: 22px;
+  }
+
+  .time-card p {
+    padding-right: 28px;
+    font-size: 13px;
+  }
+
+  .time-card em {
+    right: 10px;
+    bottom: 8px;
+    font-size: 32px;
   }
 }
 

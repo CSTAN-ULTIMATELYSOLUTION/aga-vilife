@@ -43,6 +43,12 @@ describe("getPhoneReading", () => {
       "7. 变卦下卦"
     ]);
     expect(result.breakdown?.map((item) => item.symbol)).toEqual(["☰", "☷", "☲", "☴", "☶", "☰", "☶"]);
+    expect(result.yearlyAnalysis).toHaveLength(12);
+    expect(result.yearlyAnalysis?.[0]).toMatchObject({ label: "2026", ganzhi: "丙午", element: "火/火", tone: "压" });
+    expect(result.yearlyAnalysis?.[11]).toMatchObject({ label: "2037", ganzhi: "丁巳", element: "火/火", tone: "压" });
+    expect(result.monthlyAnalysis).toHaveLength(12);
+    expect(result.monthlyAnalysis?.[0]).toMatchObject({ label: "1月", ganzhi: "己丑", element: "土/土", tone: "旺" });
+    expect(result.monthlyAnalysis?.[11]).toMatchObject({ label: "12月", ganzhi: "庚子", element: "金/水" });
   });
 
   it("accepts an 8 digit Singapore number", () => {

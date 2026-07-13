@@ -111,6 +111,50 @@ function PhoneBreakdown({ result }: { result: ReadingResult | null }) {
           )
         )}
       </div>
+
+      {result.yearlyAnalysis?.length ? (
+        <section className="time-analysis" aria-label="电话号码未来 12 年走势">
+          <div className="time-analysis-heading">
+            <span>未来 12 年走势</span>
+            <p>从 2026 年开始，以年份干支五行对照号码体卦，判断当年助力、消耗与压力。</p>
+          </div>
+          <div className="year-analysis-grid">
+            {result.yearlyAnalysis.map((item) => (
+              <article className={`time-card time-card--${item.tone}`} key={item.label}>
+                <div>
+                  <span>{item.label}</span>
+                  <strong>{item.ganzhi}</strong>
+                </div>
+                <small>{item.element}</small>
+                <p>{item.summary}</p>
+                <em>{item.tone}</em>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {result.monthlyAnalysis?.length ? (
+        <section className="time-analysis" aria-label="电话号码 2026 年月度五行细看">
+          <div className="time-analysis-heading">
+            <span>2026 月度五行细看</span>
+            <p>按节气月的地支五行近似到公历月份，帮助你看每个月的号码能量变化。</p>
+          </div>
+          <div className="month-analysis-grid">
+            {result.monthlyAnalysis.map((item) => (
+              <article className={`time-card time-card--compact time-card--${item.tone}`} key={item.label}>
+                <div>
+                  <span>{item.label}</span>
+                  <strong>{item.ganzhi}</strong>
+                </div>
+                <small>{item.element}</small>
+                <p>{item.summary}</p>
+                <em>{item.tone}</em>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
     </section>
   );
 }

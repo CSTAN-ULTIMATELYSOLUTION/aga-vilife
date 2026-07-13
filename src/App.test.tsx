@@ -59,6 +59,12 @@ describe("App calculator routes", () => {
       expect.stringContaining("5. 互卦下卦"),
       expect.stringContaining("7. 变卦下卦")
     ]);
+    expect(screen.getByText("未来 12 年走势")).toBeInTheDocument();
+    expect(screen.getByText("2026")).toBeInTheDocument();
+    expect(screen.getByText("2037")).toBeInTheDocument();
+    expect(screen.getByText("2026 月度五行细看")).toBeInTheDocument();
+    expect(screen.getByText("1月")).toBeInTheDocument();
+    expect(screen.getByText("12月")).toBeInTheDocument();
     expect(screen.getByText((_, element) => element?.textContent === "记录：+60183576003")).toBeInTheDocument();
   });
 
